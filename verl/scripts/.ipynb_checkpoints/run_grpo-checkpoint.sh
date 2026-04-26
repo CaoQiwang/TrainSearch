@@ -42,7 +42,7 @@ python3 -m verl.trainer.main_ppo \
     data.val_files=$TEST_FILE \
     data.train_batch_size=32 \
     data.max_prompt_length=2048 \
-    data.max_response_length=4096 \
+    data.max_response_length=8192 \
     data.prompt_key=prompt \
     data.filter_overlong_prompts=True \
     data.truncation='right' \
@@ -68,14 +68,14 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
     actor_rollout_ref.rollout.name=sglang \
-    actor_rollout_ref.rollout.mode=async \
+    actor_rollout_ref.rollout.mode=sync \
     actor_rollout_ref.rollout.multi_turn.enable=True \
     actor_rollout_ref.rollout.multi_turn.max_assistant_turns=6 \
     actor_rollout_ref.rollout.multi_turn.max_user_turns=5 \
     actor_rollout_ref.rollout.multi_turn.format=custom \
-    actor_rollout_ref.rollout.multi_turn.max_tool_response_length=1024 \
-    actor_rollout_ref.rollout.response_length=4096 \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.60 \
+    actor_rollout_ref.rollout.multi_turn.max_tool_response_length=2048 \
+    actor_rollout_ref.rollout.response_length=8192 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.40 \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
     actor_rollout_ref.rollout.multi_stage_wake_up=True \
     actor_rollout_ref.rollout.n=4 \
