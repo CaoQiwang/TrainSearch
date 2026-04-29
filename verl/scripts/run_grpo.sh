@@ -97,6 +97,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.test_freq=-1 \
     trainer.val_before_train=False \
     trainer.resume_mode="disable" \
+    trainer.rollout_data_dir=./rollout_logs \
     actor_rollout_ref.rollout.multi_turn.tool_config_path="$TOOL_CONFIG_PATH" \
     trainer.total_epochs=2 \
     actor_rollout_ref.rollout.update_weights_bucket_megabytes=512 $@ 2>&1 | tee grpo_log.txt \

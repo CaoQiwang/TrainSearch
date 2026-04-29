@@ -39,7 +39,7 @@ if __name__ == "__main__":
             with concurrent.futures.ThreadPoolExecutor(max_workers=args.concurrent) as executor:
                 futures = []
                 for data in datas:
-                    if args.model_name == "Qwen3-4B":
+                    if args.model_name == "Qwen3-8B":
                         query = user_prompt.format(query=data["query"])
                         messages = [{"role": "user", "content": query}]
                         futures.append(executor.submit(request_model, args.base_url, args.model_name, messages))
@@ -49,7 +49,7 @@ if __name__ == "__main__":
                 pairs = [(data, future) for data, future in zip(datas, futures)]
                 print(f"开始抓取response, 数量{len(datas)}, 并发数{args.concurrent}")
                 for data, future in tqdm(pairs):
-                    if args.model_name == "Qwen3-4B":
+                    if args.model_name == "Qwen3-8B":
                         response = future.result()
                         data["response"] = response
                     else:

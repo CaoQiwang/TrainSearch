@@ -77,7 +77,7 @@ if __name__ == "__main__":
                 futures = []
                 for data in datas:
                     response = data["response"]
-                    if args.model_name == "Qwen3-8B":
+                    if args.model_name == "Qwen3-4B":
                         answer_match = re.search(r'<answer>(.*?)</answer>', response, re.DOTALL)
                         if not answer_match:
                             content = response

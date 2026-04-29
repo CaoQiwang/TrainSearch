@@ -1,7 +1,7 @@
 set -x
 
 base_url=127.0.0.1:8000
-model_name=Qwen3-4B
+model_name=SearchShortQA-RL-step20-ckpt
 dataset=test_data.jsonl
 
 
