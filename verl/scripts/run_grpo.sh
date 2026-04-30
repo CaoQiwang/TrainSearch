@@ -12,7 +12,7 @@ export SWANLAB_MODE=local
 
 export VERIFIER_SERVER=https://api.deepseek.com/v1
 export VERIFIER_API_KEY=sk-d4faa9a59fb944fa86c5e879d34be6a8
-export VERIFIER_PATH=deepseek-chat
+export VERIFIER_PATH=deepseek-v4-flash
 
 PROJECT_DIR="$(pwd)"
 CONFIG_PATH="$PROJECT_DIR/examples/sglang_multiturn/config"
@@ -78,16 +78,16 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.40 \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
     actor_rollout_ref.rollout.multi_stage_wake_up=True \
-    actor_rollout_ref.rollout.n=4 \
+    actor_rollout_ref.rollout.n=8 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
-    actor_rollout_ref.rollout.over_sample_rate=0.1 \
+    actor_rollout_ref.rollout.over_sample_rate=0.0 \
     actor_rollout_ref.rollout.skip_tokenizer_init=False \
     reward_model.enable=False \
     reward_model.reward_manager=custom \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
-    trainer.logger='["console", "swanlab", "tensorboard"]' \
+    trainer.logger='["console", "tensorboard"]' \
     trainer.project_name=$PROJECT_NAME \
     trainer.experiment_name=$EXPERIMENT_NAME \
     trainer.n_gpus_per_node=2 \
@@ -99,7 +99,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.resume_mode="disable" \
     trainer.rollout_data_dir=./rollout_logs \
     actor_rollout_ref.rollout.multi_turn.tool_config_path="$TOOL_CONFIG_PATH" \
-    trainer.total_epochs=2 \
+    trainer.total_epochs=1 \
     actor_rollout_ref.rollout.update_weights_bucket_megabytes=512 $@ 2>&1 | tee grpo_log.txt \
     
 
