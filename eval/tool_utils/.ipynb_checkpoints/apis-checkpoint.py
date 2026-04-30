@@ -16,7 +16,7 @@ def request_model(base_url, model_name, messages):
                 }
             )
             #print("response:" + response.choices[0].message.content)
-            if model_name == "Qwen3-4B":
+            if model_name == "Qwen3-8B":
                 return response.choices[0].message.content.split("</think>")[-1].strip()
             else:
                 return response.choices[0].message.content

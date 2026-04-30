@@ -6,6 +6,7 @@ import concurrent.futures
 from tqdm import tqdm
 import openai
 import time
+import os
 
 
 VERIFIER_SERVER = os.getenv("VERIFIER_SERVER", "http://127.0.0.1:8000/v1")
@@ -91,7 +92,7 @@ if __name__ == "__main__":
                     futures.append(executor.submit(request_model, prompt))
                     
                 pairs = [(data, future) for data, future in zip(datas, futures)]
-                print(f"开始抓取response, 数量{len(datas)}, 并发数{args.concurrent}")
+                print(f"开始测评回答, 数量{len(datas)}, 并发数{args.concurrent}")
                 for data, future in tqdm(pairs):
                     res = future.result()
                     data["eval_result"] = res
