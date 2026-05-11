@@ -5,25 +5,24 @@ set -x
 
 # ulimit -n 65535
 
-export SWANLAB_LOG_DIR=swanlog
-export SWANLAB_MODE=local
-# export HYDRA_FULL_ERROR=1
-# export SWANLAB_API_KEY=xxx  # 如果SWANLAB_MODE为cloud, 则写上api_key
-
+export SWANLAB_LOG_DIR=SY2503101
+export SWANLAB_MODE=cloud
+export SWANLAB_API_KEY=EbAsktmxsbc8wwxWSEhrd
+export HYDRA_FULL_ERROR=1
 export VERIFIER_SERVER=https://api.deepseek.com/v1
-export VERIFIER_API_KEY=sk-d4faa9a59fb944fa86c5e879d34be6a8
+export VERIFIER_API_KEY=sk-d4faa9a59fb944fa86c5e879d34be6a
 export VERIFIER_PATH=deepseek-v4-flash
 
 PROJECT_DIR="$(pwd)"
 CONFIG_PATH="$PROJECT_DIR/examples/sglang_multiturn/config"
 
-TRAIN_FILE="/workspace/SearchShortQA/data/rl_train_data.parquet"
-TEST_FILE="/workspace/SearchShortQA/data/rl_train_data.parquet"
-ACTOR_MODEL_PATH="/workspace/Qwen/Qwen3-4B"
+TRAIN_FILE="/root/autodl-tmp/TrainSearch/data/rl_train_data.parquet"
+TEST_FILE="/root/autodl-tmp/TrainSearch/data/rl_train_data.parquet"
+ACTOR_MODEL_PATH="/root/autodl-tmp/Qwen/Qwen3-4B"
 
-SAVE_PATH="/workspace/output/SearchShortQA-RL"
+SAVE_PATH="/root/autodl-tmp/output/SearchShortQA-RL"
 
-TOOL_CONFIG_PATH="/workspace/SearchShortQA/verl/examples/sglang_multiturn/config/tool_config/custom_tool_config.yaml"
+TOOL_CONFIG_PATH="/root/autodl-tmp/TrainSearch/verl/examples/sglang_multiturn/config/tool_config/custom_tool_config.yaml"
 
 current_time=$(date +"%Y-%m-%d_%H:%M:%S")
 
@@ -52,7 +51,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.optim.warmup_style='cosine' \
     actor_rollout_ref.actor.optim.lr_warmup_steps_ratio=0.1 \
     actor_rollout_ref.model.use_remove_padding=True \
-    actor_rollout_ref.actor.ppo_mini_batch_size=16 \
+    actor_rollout_ref.actor.ppo_mini_batch_size=8 \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.actor.use_kl_loss=True \
     actor_rollout_ref.actor.kl_loss_coef=0.001 \
@@ -68,26 +67,26 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
     actor_rollout_ref.rollout.name=sglang \
-    actor_rollout_ref.rollout.mode=sync \
+    actor_rollout_ref.rollout.mode=async \
     actor_rollout_ref.rollout.multi_turn.enable=True \
     actor_rollout_ref.rollout.multi_turn.max_assistant_turns=6 \
     actor_rollout_ref.rollout.multi_turn.max_user_turns=5 \
     actor_rollout_ref.rollout.multi_turn.format=custom \
     actor_rollout_ref.rollout.multi_turn.max_tool_response_length=2048 \
     actor_rollout_ref.rollout.response_length=8192 \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.40 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.70 \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
     actor_rollout_ref.rollout.multi_stage_wake_up=True \
     actor_rollout_ref.rollout.n=8 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
-    actor_rollout_ref.rollout.over_sample_rate=0.0 \
+    actor_rollout_ref.rollout.over_sample_rate=0.1 \
     actor_rollout_ref.rollout.skip_tokenizer_init=False \
     reward_model.enable=False \
     reward_model.reward_manager=custom \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
-    trainer.logger='["console", "tensorboard"]' \
+    trainer.logger='["console", "swanlab", "tensorboard"]' \
     trainer.project_name=$PROJECT_NAME \
     trainer.experiment_name=$EXPERIMENT_NAME \
     trainer.n_gpus_per_node=2 \
@@ -97,9 +96,9 @@ python3 -m verl.trainer.main_ppo \
     trainer.test_freq=-1 \
     trainer.val_before_train=False \
     trainer.resume_mode="disable" \
-    trainer.rollout_data_dir=./rollout_logs \
     actor_rollout_ref.rollout.multi_turn.tool_config_path="$TOOL_CONFIG_PATH" \
     trainer.total_epochs=1 \
-    actor_rollout_ref.rollout.update_weights_bucket_megabytes=512 $@ 2>&1 | tee grpo_log.txt \
+    actor_rollout_ref.actor.checkpoint.save_contents="['model']" \
+    actor_rollout_ref.rollout.update_weights_bucket_megabytes=512 $@ 2>&1 | tee grpo_log.txt
     
 
