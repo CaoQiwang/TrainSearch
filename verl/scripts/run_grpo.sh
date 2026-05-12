@@ -1,5 +1,4 @@
 # run on 2xA800
-# make sure your current working directory is the root of the project
 
 set -x
 
@@ -10,7 +9,7 @@ export SWANLAB_MODE=cloud
 export SWANLAB_API_KEY=EbAsktmxsbc8wwxWSEhrd
 export HYDRA_FULL_ERROR=1
 export VERIFIER_SERVER=https://api.deepseek.com/v1
-export VERIFIER_API_KEY=sk-d4faa9a59fb944fa86c5e879d34be6a
+export VERIFIER_API_KEY=
 export VERIFIER_PATH=deepseek-v4-flash
 
 PROJECT_DIR="$(pwd)"
@@ -20,7 +19,8 @@ TRAIN_FILE="/root/autodl-tmp/TrainSearch/data/rl_train_data.parquet"
 TEST_FILE="/root/autodl-tmp/TrainSearch/data/rl_train_data.parquet"
 ACTOR_MODEL_PATH="/root/autodl-tmp/Qwen/Qwen3-4B"
 
-SAVE_PATH="/root/autodl-tmp/output/SearchShortQA-RL"
+SAVE_PATH="/root/autodl-tmp/output/TrainSearch-RL"
+ROLLOUT_PATH="/root/autodl-tmp/output/rollout_data"
 
 TOOL_CONFIG_PATH="/root/autodl-tmp/TrainSearch/verl/examples/sglang_multiturn/config/tool_config/custom_tool_config.yaml"
 
@@ -30,7 +30,7 @@ export MASTER_ADDR=127.0.0.1
 export MASTER_PORT=$((29500 + RANDOM % 1000))
 export DIST_INIT_METHOD="tcp://$MASTER_ADDR:$MASTER_PORT"
 
-PROJECT_NAME="SearchShortQA-GRPO"
+PROJECT_NAME="TrainSearch-GRPO"
 EXPERIMENT_NAME="qwen3-4b_rl_${current_time}"
 
 python3 -m verl.trainer.main_ppo \
@@ -41,7 +41,7 @@ python3 -m verl.trainer.main_ppo \
     data.val_files=$TEST_FILE \
     data.train_batch_size=32 \
     data.max_prompt_length=2048 \
-    data.max_response_length=8192 \
+    data.max_response_length=5000 \
     data.prompt_key=prompt \
     data.filter_overlong_prompts=True \
     data.truncation='right' \
@@ -49,7 +49,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.model.path=$ACTOR_MODEL_PATH \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.actor.optim.warmup_style='cosine' \
-    actor_rollout_ref.actor.optim.lr_warmup_steps_ratio=0.1 \
+    actor_rollout_ref.actor.optim.lr_warmup_steps_ratio=0.05 \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.actor.ppo_mini_batch_size=8 \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
@@ -60,11 +60,13 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
+    actor_rollout_ref.actor.fsdp_config.model_dtype=bf16 \
+    actor_rollout_ref.ref.fsdp_config.model_dtype=bf16 \
     global_profiler.tool=torch_memory \
     global_profiler.save_path=./mem_snapshots \
     global_profiler.global_tool_config.torch_memory.trace_alloc_max_entries=100000 \
     global_profiler.global_tool_config.torch_memory.stack_depth=32 \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
     actor_rollout_ref.rollout.name=sglang \
     actor_rollout_ref.rollout.mode=async \
@@ -73,12 +75,12 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.multi_turn.max_user_turns=5 \
     actor_rollout_ref.rollout.multi_turn.format=custom \
     actor_rollout_ref.rollout.multi_turn.max_tool_response_length=2048 \
-    actor_rollout_ref.rollout.response_length=8192 \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.70 \
+    actor_rollout_ref.rollout.response_length=5000 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.65 \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
     actor_rollout_ref.rollout.multi_stage_wake_up=True \
     actor_rollout_ref.rollout.n=8 \
-    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=1 \
+    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=2 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     actor_rollout_ref.rollout.over_sample_rate=0.1 \
     actor_rollout_ref.rollout.skip_tokenizer_init=False \
@@ -96,6 +98,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.test_freq=-1 \
     trainer.val_before_train=False \
     trainer.resume_mode="disable" \
+    trainer.rollout_data_dir=$ROLLOUT_PATH \
     actor_rollout_ref.rollout.multi_turn.tool_config_path="$TOOL_CONFIG_PATH" \
     trainer.total_epochs=1 \
     actor_rollout_ref.actor.checkpoint.save_contents="['model']" \
