@@ -92,6 +92,7 @@ def request_model(prompt):
                 temperature=0.1,
                 top_p=1.0,
                 max_tokens=128,
+                extra_body={"thinking": {"type": "disabled"}},
             )
             return response.choices[0].message.content.strip()
         except:

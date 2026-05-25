@@ -1,7 +1,7 @@
 # run on 2xA800
 
 set -x
-
+export OMP_NUM_THREADS=1
 # ulimit -n 65535
 
 export SWANLAB_LOG_DIR=SY2503101
@@ -9,7 +9,7 @@ export SWANLAB_MODE=cloud
 export SWANLAB_API_KEY=EbAsktmxsbc8wwxWSEhrd
 export HYDRA_FULL_ERROR=1
 export VERIFIER_SERVER=https://api.deepseek.com/v1
-export VERIFIER_API_KEY=
+export VERIFIER_API_KEY=sk-d03c7a4e986345f08c3705c5803f1867
 export VERIFIER_PATH=deepseek-v4-flash
 
 PROJECT_DIR="$(pwd)"
@@ -49,7 +49,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.model.path=$ACTOR_MODEL_PATH \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.actor.optim.warmup_style='cosine' \
-    actor_rollout_ref.actor.optim.lr_warmup_steps_ratio=0.05 \
+    actor_rollout_ref.actor.optim.lr_warmup_steps_ratio=0.1 \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.actor.ppo_mini_batch_size=8 \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
@@ -67,7 +67,7 @@ python3 -m verl.trainer.main_ppo \
     global_profiler.global_tool_config.torch_memory.trace_alloc_max_entries=100000 \
     global_profiler.global_tool_config.torch_memory.stack_depth=32 \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 \
-    actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
+    actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
     actor_rollout_ref.rollout.name=sglang \
     actor_rollout_ref.rollout.mode=async \
     actor_rollout_ref.rollout.multi_turn.enable=True \
@@ -76,7 +76,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.multi_turn.format=custom \
     actor_rollout_ref.rollout.multi_turn.max_tool_response_length=2048 \
     actor_rollout_ref.rollout.response_length=5000 \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.65 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.80 \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
     actor_rollout_ref.rollout.multi_stage_wake_up=True \
     actor_rollout_ref.rollout.n=8 \

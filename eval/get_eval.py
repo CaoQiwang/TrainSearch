@@ -24,6 +24,7 @@ def request_model(prompt):
                 temperature=0.1,
                 top_p=1.0,
                 max_tokens=128,
+                extra_body={"thinking": {"type": "disabled"}},
             )
             return response.choices[0].message.content.strip()
         except:
@@ -78,7 +79,7 @@ if __name__ == "__main__":
                 futures = []
                 for data in datas:
                     response = data["response"]
-                    if args.model_name == "Qwen3-4B":
+                    if args.model_name == "Qwen3-8B":
                         answer_match = re.search(r'<answer>(.*?)</answer>', response, re.DOTALL)
                         if not answer_match:
                             content = response

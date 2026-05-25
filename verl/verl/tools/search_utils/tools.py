@@ -12,19 +12,20 @@ def search(queries, top_k=5):
 
     results = []
     results_string = []
-    for i in range(5):
+    for i in range(1):
         try:
             start_time = time.time()
             res = ddgs_search(queries, top_k, ddgs_backend="auto")
             end_time = time.time()
-            print(f"google search query_list: {queries}, time taken: {end_time - start_time} seconds")
+            print(f"google search query_list: {queries}, time taken: {end_time - start_time} seconds.")
             if res:
                 return generate_search_snippets(res)
             else:
                 continue
         except Exception as e:
             continue
-
+            
+    print(f"google search query_list: {queries}, search error!")
     return "Google search encountered an error and was unable to extract valid information."
 
 

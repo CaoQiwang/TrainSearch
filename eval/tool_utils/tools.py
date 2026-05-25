@@ -12,7 +12,7 @@ def search(queries, top_k=5):
 
     results = []
     results_string = []
-    for i in range(5):
+    for i in range(1):
         try:
             start_time = time.time()
             res = ddgs_search(queries, top_k, ddgs_backend="auto")
@@ -24,7 +24,7 @@ def search(queries, top_k=5):
                 continue
         except Exception as e:
             continue
-
+    print(f"google search query_list: {queries}, erorr!")
     return "<tool_response>\nGoogle search encountered an error and was unable to extract valid information.\n</tool_response>"
 
 

@@ -57,8 +57,8 @@ def generate_search_snippets(results):
     
 def ddgs_search(queries, top_k=5, ddgs_backend='auto'):
     def ddgs_single_search(query):
-        for i in range(5):
-            with DDGS(timeout=180) as _ddgs:
+        for i in range(3):
+            with DDGS(timeout=10) as _ddgs:
                 try:
                     single_result = _ddgs.text(
                         query,
